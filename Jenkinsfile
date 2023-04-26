@@ -41,7 +41,7 @@ stages{
 
 stage('SonarQube analysis') {
    steps{
-    withSonarQubeEnv(credentialsId: 'sonarqube') {
+    withSonarQubeEnv(credentialsId: 'sonarqube', installationName: 'SonarCloud') {
     sh 'mvn clean package sonar:sonar'
     }
     }
