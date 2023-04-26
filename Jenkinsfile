@@ -13,30 +13,41 @@ agent {
 stages{
 
  stage('Checkout'){
+    steps{
+  
+  checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/TafariBeckford/Complete-CI-CD.git']])
 
-   checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/TafariBeckford/Complete-CI-CD.git']])
+
+    }
+   
 
  }
 
  stage('Unit Test'){
+   steps{
 
-   sh 'mvn clean test'
+       sh 'mvn clean test'
+    }
+   
  }
 
  stage('Integration Test'){
-
-   sh 'mvn verify -DskipUnitTests'
+    steps{
+        sh 'mvn verify -DskipUnitTests'
+        }
+   
  }
 
 
 stage('SonarQube analysis') {
-
+   steps{
     withSonarQubeEnv(credentialsId: 'sonarqube') {
     sh 'mvn clean package sonar:sonar'
-}
+    }
+    }
 
 }
 
-            }
+    }
 
 }
