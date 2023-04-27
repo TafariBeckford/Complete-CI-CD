@@ -5,28 +5,25 @@ agent {
 }
 
  tools {
-    jdk 'jdk-11'
+    jdk 'jdk-17'
     terraform 'terraform'
-    git 'Default'
     maven 'maven3'
  }
+  environment{
+        SCANNER_HOME= tool 'sonar-scanner'
+    }
 stages{
 
  stage('Checkout'){
     steps{
-  
   checkout scmGit(branches: [[name: '*/main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/TafariBeckford/Complete-CI-CD.git']])
-
-
-    }
+ }
    
-
  }
 
  stage('Unit Test'){
    steps{
-
-       sh 'mvn clean test'
+        sh 'mvn test'
     }
    
  }
@@ -39,15 +36,35 @@ stages{
  }
 
 
-stage('SonarQube analysis') {
+stage('SonarQube Analysis') {
    steps{
-    withSonarQubeEnv(credentialsId: 'sonarqube', installationName: 'SonarCloud') {
-    sh 'mvn clean package sonar:sonar'
+    withSonarQubeEnv('sonar-scanner') {
+     sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Devops-CICD \
+                  -Dsonar.java.binaries=. \
+                  -Dsonar.organization=tafari-organization \
+                  -Dsonar.projectKey=Devops-CICD \
+                  -Dsonar.sources=. \
+                  -Dsonar.host.url=https://sonarcloud.io
+                   
+                   '''
     }
     }
 
 }
 
+ stage('Quality Gates') {
+            steps {
+                
+            waitForQualityGate abortPipeline: false, credentialsId: 'sonarqube'
+            
+            }
+ }
+
+ stage('Code-Build') {
+            steps {
+               sh "mvn clean install"
+            }
     }
 
+}
 }
