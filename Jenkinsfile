@@ -6,11 +6,13 @@ agent {
 
  tools {
     jdk 'jdk-17'
-    terraform 'terraform'
     maven 'maven3'
+
  }
   environment{
         SCANNER_HOME= tool 'sonar-scanner'
+        DOCKERHUB = credentials('dockerhub')
+        
     }
 stages{
 
@@ -65,6 +67,24 @@ stage('SonarQube Analysis') {
                sh "mvn clean install"
             }
     }
+stage('Image Build'){
+    
+    steps {
+    
+        sh "docker build -t tafaribeckford/pet-clinic-876:latest . "
+        
+}
+    
+    
+}
+stage('Image Push'){
+     steps {
+            sh "docker login --username $DOCKERHUB_USR --password-stdin $DOCKERHUB_PSW"
+            sh "docker push tafaribeckford/pet-clinic-876:latest"
+      
+      }
+       }
+} 
+     
+}
 
-}
-}
